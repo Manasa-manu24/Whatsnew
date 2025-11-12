@@ -250,12 +250,6 @@ export default function UnifiedChatList() {
             {isCreating && (
               <Loader2 className="h-5 w-5 animate-spin text-primary flex-shrink-0" />
             )}
-            
-            {entry.unreadCount && entry.unreadCount > 0 && (
-              <div className="bg-primary text-primary-foreground rounded-full h-5 min-w-[1.25rem] flex items-center justify-center text-xs px-1.5 font-semibold flex-shrink-0">
-                {entry.unreadCount}
-              </div>
-            )}
           </button>
         );
       })}

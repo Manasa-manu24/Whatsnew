@@ -2,6 +2,8 @@ import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Check, CheckCheck } from 'lucide-react';
+import { useState } from 'react';
+import ImageLightbox from './ImageLightbox';
 
 interface MessageBubbleProps {
   message: Message;
@@ -9,6 +11,8 @@ interface MessageBubbleProps {
 }
 
 export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const getTime = () => {
     try {
       return format(message.createdAt.toDate(), 'HH:mm');
@@ -42,7 +46,8 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
                   <img
                     src={attachment.url}
                     alt="attachment"
-                    className="max-w-full h-auto rounded max-h-[300px] object-contain"
+                    className="max-w-full h-auto rounded max-h-[300px] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setSelectedImage(attachment.url)}
                   />
                 )}
               </div>
@@ -79,6 +84,11 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           )}
         </div>
       </div>
+
+      <ImageLightbox 
+        imageUrl={selectedImage} 
+        onClose={() => setSelectedImage(null)} 
+      />
     </div>
   );
 }

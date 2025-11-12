@@ -114,12 +114,6 @@ export default function ChatList() {
               {chat.lastMessagePreview?.text || 'No messages yet'}
             </p>
           </div>
-          
-          {chat.unreadCounts?.[userProfile?.uid || ''] > 0 && (
-            <div className="bg-primary text-primary-foreground rounded-full h-5 min-w-[1.25rem] flex items-center justify-center text-xs px-1.5 font-semibold flex-shrink-0">
-              {chat.unreadCounts[userProfile?.uid || '']}
-            </div>
-          )}
         </button>
       ))}
     </div>
