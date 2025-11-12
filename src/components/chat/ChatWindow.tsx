@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useChatStore } from '@/stores/chatStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useMessages } from '@/hooks/useMessages';
+import { useMessageReceipts } from '@/hooks/useMessageReceipts';
 import MessageBubble from './MessageBubble';
 import MessageComposer from './MessageComposer';
 import UserProfileView from './UserProfileView';
@@ -21,6 +22,7 @@ export default function ChatWindow() {
   const [showProfileView, setShowProfileView] = useState(false);
   
   useMessages(currentChatId);
+  useMessageReceipts(currentChatId); // Mark messages as delivered and read
 
   const currentChat = chats.find((chat) => chat.id === currentChatId);
   const currentMessages = currentChatId ? messages[currentChatId] || [] : [];

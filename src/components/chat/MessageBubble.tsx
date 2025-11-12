@@ -57,9 +57,12 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             {getTime()}
           </span>
           {isOwn && (
-            <span className="text-chat-timestamp">
+            <span className={cn(
+              "transition-colors duration-200",
+              hasBeenRead ? "text-blue-500" : "text-chat-timestamp"
+            )}>
               {hasBeenRead ? (
-                <CheckCheck className="h-3 w-3 text-primary" />
+                <CheckCheck className="h-3 w-3" />
               ) : hasBeenDelivered ? (
                 <CheckCheck className="h-3 w-3" />
               ) : (
