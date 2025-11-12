@@ -12,6 +12,8 @@ import BottomNavMobile from '@/components/Layout/BottomNavMobile';
 import StatusList from '@/components/Status/StatusList';
 import StatusUploader from '@/components/Status/StatusUploader';
 import StatusViewer from '@/components/Status/StatusViewer';
+import ProfileDialog from '@/components/Profile/ProfileDialog';
+import SettingsDialog from '@/components/Settings/SettingsDialog';
 import Calls from '@/pages/Calls';
 import ChatListContainer from '@/components/chat/ChatListContainer';
 import { UserStatus } from '@/hooks/useStatus';
@@ -30,6 +32,8 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<TabType>('chats');
   const [showStatusUploader, setShowStatusUploader] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<UserStatus | null>(null);
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
 
   if (loading) {
     return (
@@ -112,7 +116,7 @@ const Index = () => {
               <WhatsnewHeader
                 onOpenScan={() => console.log('Scan')}
                 onOpenCamera={handleOpenCamera}
-                onOpenSettings={() => console.log('Settings')}
+                onOpenSettings={() => setShowSettingsDialog(true)}
                 showSearch={activeTab === 'chats'}
               />
             )}
@@ -140,7 +144,12 @@ const Index = () => {
           // Desktop Layout - Three columns
           <>
             {/* Vertical Navigation Sidebar */}
-            <VerticalNav activeTab={activeTab} onTabChange={setActiveTab} />
+            <VerticalNav 
+              activeTab={activeTab} 
+              onTabChange={setActiveTab}
+              onProfileClick={() => setShowProfileDialog(true)}
+              onSettingsClick={() => setShowSettingsDialog(true)}
+            />
 
             {/* Middle Panel - Chat List / Updates / Calls */}
             <LeftSidebar title={getSidebarTitle()}>
@@ -185,6 +194,12 @@ const Index = () => {
           }}
         />
       )}
+
+      {/* Profile Dialog */}
+      <ProfileDialog open={showProfileDialog} onOpenChange={setShowProfileDialog} />
+
+      {/* Settings Dialog */}
+      <SettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
     </>
   );
 };

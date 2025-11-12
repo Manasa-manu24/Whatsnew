@@ -9,9 +9,16 @@ type TabType = 'chats' | 'updates' | 'calls' | 'contacts';
 interface VerticalNavProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
+  onProfileClick?: () => void;
+  onSettingsClick?: () => void;
 }
 
-export default function VerticalNav({ activeTab, onTabChange }: VerticalNavProps) {
+export default function VerticalNav({ 
+  activeTab, 
+  onTabChange, 
+  onProfileClick, 
+  onSettingsClick 
+}: VerticalNavProps) {
   const { userProfile } = useAuthStore();
 
   const tabs = [
@@ -24,7 +31,10 @@ export default function VerticalNav({ activeTab, onTabChange }: VerticalNavProps
   return (
     <aside className="w-16 bg-card border-r border-border flex flex-col items-center py-4 gap-4">
       {/* User Avatar at top */}
-      <Avatar className="h-10 w-10 cursor-pointer">
+      <Avatar 
+        className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity" 
+        onClick={onProfileClick}
+      >
         <AvatarImage src={userProfile?.avatarUrl} />
         <AvatarFallback className="bg-primary text-primary-foreground">
           {userProfile?.name.charAt(0).toUpperCase()}
@@ -63,6 +73,7 @@ export default function VerticalNav({ activeTab, onTabChange }: VerticalNavProps
         size="icon"
         className="h-12 w-12 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
         aria-label="Settings"
+        onClick={onSettingsClick}
       >
         <Settings className="h-6 w-6" />
       </Button>

@@ -1,20 +1,62 @@
+import { useState, useEffect } from 'react';
 import { useChatStore } from '@/stores/chatStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { MessageCircle } from 'lucide-react';
+import { getUserProfiles } from '@/lib/chatUtils';
+import { User } from '@/lib/types';
 
 export default function ChatList() {
   const { chats, currentChatId, setCurrentChatId } = useChatStore();
   const { userProfile } = useAuthStore();
+  const [userProfiles, setUserProfiles] = useState<Map<string, User>>(new Map());
+
+  // Fetch user profiles for all chat members
+  useEffect(() => {
+    const fetchUserProfiles = async () => {
+      const allUserIds = new Set<string>();
+      
+      chats.forEach((chat) => {
+        chat.members.forEach((memberId) => {
+          if (memberId !== userProfile?.uid) {
+            allUserIds.add(memberId);
+          }
+        });
+      });
+
+      if (allUserIds.size > 0) {
+        const profiles = await getUserProfiles(Array.from(allUserIds));
+        setUserProfiles(profiles);
+      }
+    };
+
+    if (chats.length > 0 && userProfile) {
+      fetchUserProfiles();
+    }
+  }, [chats, userProfile]);
 
   const getChatName = (chat: any) => {
     if (chat.isGroup) return chat.name || 'Group Chat';
     
     // For 1:1 chats, show the other person's name
     const otherUserId = chat.members.find((id: string) => id !== userProfile?.uid);
-    return otherUserId || 'Unknown';
+    if (!otherUserId) return 'Unknown';
+    
+    const otherUser = userProfiles.get(otherUserId);
+    return otherUser?.name || otherUserId;
+  };
+
+  const getChatAvatar = (chat: any) => {
+    if (chat.isGroup) return chat.avatarUrl;
+    
+    // For 1:1 chats, show the other person's avatar
+    const otherUserId = chat.members.find((id: string) => id !== userProfile?.uid);
+    if (!otherUserId) return undefined;
+    
+    const otherUser = userProfiles.get(otherUserId);
+    return otherUser?.avatarUrl;
   };
 
   const getLastMessageTime = (chat: any) => {
@@ -53,7 +95,7 @@ export default function ChatList() {
           )}
         >
           <Avatar className="h-11 w-11 md:h-12 md:w-12 flex-shrink-0">
-            <AvatarImage src={chat.avatarUrl} />
+            <AvatarImage src={getChatAvatar(chat)} />
             <AvatarFallback className="bg-primary text-primary-foreground">
               {getChatName(chat).charAt(0).toUpperCase()}
             </AvatarFallback>

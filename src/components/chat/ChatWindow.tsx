@@ -1,24 +1,47 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useChatStore } from '@/stores/chatStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useMessages } from '@/hooks/useMessages';
 import MessageBubble from './MessageBubble';
 import MessageComposer from './MessageComposer';
+import UserProfileView from './UserProfileView';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { MoreVertical, Phone, Video, MessageCircle, ArrowLeft } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getUserProfile } from '@/lib/chatUtils';
+import { User } from '@/lib/types';
 
 export default function ChatWindow() {
   const { currentChatId, chats, messages, setCurrentChatId } = useChatStore();
   const { userProfile } = useAuthStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const [otherUser, setOtherUser] = useState<User | null>(null);
+  const [showProfileView, setShowProfileView] = useState(false);
   
   useMessages(currentChatId);
 
   const currentChat = chats.find((chat) => chat.id === currentChatId);
   const currentMessages = currentChatId ? messages[currentChatId] || [] : [];
+
+  // Fetch other user's profile for 1:1 chats
+  useEffect(() => {
+    const fetchOtherUser = async () => {
+      if (!currentChat || currentChat.isGroup || !userProfile) {
+        setOtherUser(null);
+        return;
+      }
+
+      const otherUserId = currentChat.members.find((id) => id !== userProfile.uid);
+      if (otherUserId) {
+        const user = await getUserProfile(otherUserId);
+        setOtherUser(user);
+      }
+    };
+
+    fetchOtherUser();
+  }, [currentChat, userProfile]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,8 +65,19 @@ export default function ChatWindow() {
 
   const getChatName = () => {
     if (currentChat.isGroup) return currentChat.name || 'Group Chat';
-    const otherUserId = currentChat.members.find((id) => id !== userProfile?.uid);
-    return otherUserId || 'Unknown';
+    return otherUser?.name || 'Unknown';
+  };
+
+  const getChatAvatar = () => {
+    if (currentChat.isGroup) return currentChat.avatarUrl;
+    return otherUser?.avatarUrl;
+  };
+
+  const getChatStatus = () => {
+    if (currentChat.isGroup) {
+      return `${currentChat.members.length} members`;
+    }
+    return otherUser?.isOnline ? 'Online' : 'Offline';
   };
 
   return (
@@ -61,17 +95,23 @@ export default function ChatWindow() {
           </Button>
         )}
         
-        <Avatar className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0">
-          <AvatarImage src={currentChat.avatarUrl} />
+        <Avatar 
+          className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => !currentChat.isGroup && setShowProfileView(true)}
+        >
+          <AvatarImage src={getChatAvatar()} />
           <AvatarFallback className="bg-primary text-primary-foreground">
             {getChatName().charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         
-        <div className="flex-1 min-w-0">
+        <div 
+          className="flex-1 min-w-0 cursor-pointer hover:bg-muted/50 rounded-md p-1 -ml-1 transition-colors"
+          onClick={() => !currentChat.isGroup && setShowProfileView(true)}
+        >
           <h2 className="font-semibold text-sm md:text-base text-foreground truncate">{getChatName()}</h2>
           <p className="text-xs text-muted-foreground truncate">
-            {currentChat.isGroup ? `${currentChat.members.length} members` : 'Online'}
+            {getChatStatus()}
           </p>
         </div>
         
@@ -102,6 +142,13 @@ export default function ChatWindow() {
 
       {/* Message Composer */}
       <MessageComposer chatId={currentChatId} />
+
+      {/* User Profile View Dialog */}
+      <UserProfileView 
+        open={showProfileView} 
+        onOpenChange={setShowProfileView}
+        user={otherUser}
+      />
     </div>
   );
 }
