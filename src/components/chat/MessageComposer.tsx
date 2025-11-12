@@ -1,54 +1,98 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/stores/authStore';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Image as ImageIcon, Smile, Paperclip } from 'lucide-react';
+import { Send, Image as ImageIcon, Smile, Paperclip, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Message } from '@/lib/types';
 
 interface MessageComposerProps {
   chatId: string;
+  replyToMessage?: Message | null;
+  onCancelReply?: () => void;
+  editingMessage?: Message | null;
+  onCancelEdit?: () => void;
 }
 
-export default function MessageComposer({ chatId }: MessageComposerProps) {
+export default function MessageComposer({ 
+  chatId, 
+  replyToMessage = null,
+  onCancelReply = () => {},
+  editingMessage = null,
+  onCancelEdit = () => {},
+}: MessageComposerProps) {
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { userProfile } = useAuthStore();
   const { toast } = useToast();
 
+  // Set message content when editing
+  useEffect(() => {
+    if (editingMessage) {
+      setMessage(editingMessage.content || '');
+    }
+  }, [editingMessage]);
+
   const handleSendMessage = async () => {
     if (!message.trim() || !userProfile) return;
 
     try {
-      const messagesRef = collection(db, 'chats', chatId, 'messages');
-      await addDoc(messagesRef, {
-        chatId,
-        senderId: userProfile.uid,
-        content: message.trim(),
-        createdAt: serverTimestamp(),
-        deliveredTo: [],
-        readBy: { [userProfile.uid]: serverTimestamp() },
-      });
+      if (editingMessage) {
+        // Update existing message
+        const messageRef = doc(db, 'chats', chatId, 'messages', editingMessage.id);
+        await updateDoc(messageRef, {
+          content: message.trim(),
+          editedAt: serverTimestamp(),
+        });
 
-      // Update chat's last message
-      const chatRef = doc(db, 'chats', chatId);
-      await updateDoc(chatRef, {
-        lastMessagePreview: {
-          text: message.trim(),
+        toast({
+          title: 'Message updated',
+        });
+        setMessage('');
+        onCancelEdit();
+      } else {
+        // Send new message
+        const messagesRef = collection(db, 'chats', chatId, 'messages');
+        const messageData: any = {
+          chatId,
           senderId: userProfile.uid,
+          content: message.trim(),
           createdAt: serverTimestamp(),
-        },
-        updatedAt: serverTimestamp(),
-      });
+          deliveredTo: [],
+          readBy: { [userProfile.uid]: serverTimestamp() },
+        };
 
-      setMessage('');
+        // Add reply reference if replying
+        if (replyToMessage) {
+          messageData.replyToMessageId = replyToMessage.id;
+        }
+
+        await addDoc(messagesRef, messageData);
+
+        // Update chat's last message
+        const chatRef = doc(db, 'chats', chatId);
+        await updateDoc(chatRef, {
+          lastMessagePreview: {
+            text: message.trim(),
+            senderId: userProfile.uid,
+            createdAt: serverTimestamp(),
+          },
+          updatedAt: serverTimestamp(),
+        });
+
+        setMessage('');
+        if (replyToMessage) {
+          onCancelReply();
+        }
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
-        title: 'Failed to send message',
+        title: editingMessage ? 'Failed to update message' : 'Failed to send message',
         description: 'Please try again',
         variant: 'destructive',
       });
@@ -116,8 +160,32 @@ export default function MessageComposer({ chatId }: MessageComposerProps) {
   };
 
   return (
-    <div className="bg-background border-t border-border p-3 md:p-4 flex-shrink-0">
-      <div className="flex items-end gap-1 md:gap-2">
+    <div className="bg-background border-t border-border flex-shrink-0">
+      {/* Reply/Edit Indicator */}
+      {(replyToMessage || editingMessage) && (
+        <div className="px-3 md:px-4 pt-3 pb-1">
+          <div className="bg-muted rounded-lg p-2 flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-primary mb-1">
+                {editingMessage ? 'Editing message' : 'Replying to'}
+              </p>
+              <p className="text-sm text-muted-foreground truncate">
+                {editingMessage?.content || replyToMessage?.content || ''}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 flex-shrink-0"
+              onClick={editingMessage ? onCancelEdit : onCancelReply}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      <div className="p-3 md:p-4 flex items-end gap-1 md:gap-2">
         <div className="flex items-center gap-0.5 md:gap-1">
           <Button
             type="button"

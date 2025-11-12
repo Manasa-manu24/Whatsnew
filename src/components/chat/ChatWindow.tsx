@@ -11,7 +11,10 @@ import { Button } from '@/components/ui/button';
 import { MoreVertical, Phone, Video, MessageCircle, ArrowLeft } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getUserProfile } from '@/lib/chatUtils';
-import { User } from '@/lib/types';
+import { User, Message } from '@/lib/types';
+import { doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { toast } from 'sonner';
 
 export default function ChatWindow() {
   const { currentChatId, chats, messages, setCurrentChatId } = useChatStore();
@@ -20,6 +23,8 @@ export default function ChatWindow() {
   const isMobile = useIsMobile();
   const [otherUser, setOtherUser] = useState<User | null>(null);
   const [showProfileView, setShowProfileView] = useState(false);
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   
   useMessages(currentChatId);
   useMessageReceipts(currentChatId); // Mark messages as delivered and read
@@ -82,6 +87,48 @@ export default function ChatWindow() {
     return otherUser?.isOnline ? 'Online' : 'Offline';
   };
 
+  const handleReply = (message: Message) => {
+    setReplyToMessage(message);
+    toast.success('Reply mode activated');
+  };
+
+  const handleForward = (message: Message) => {
+    // TODO: Implement forward dialog to select chat
+    toast.info('Forward feature coming soon');
+  };
+
+  const handleCopy = async (message: Message) => {
+    if (message.content) {
+      try {
+        await navigator.clipboard.writeText(message.content);
+        toast.success('Message copied to clipboard');
+      } catch (error) {
+        toast.error('Failed to copy message');
+      }
+    }
+  };
+
+  const handleEdit = (message: Message) => {
+    setEditingMessage(message);
+    toast.info('Edit mode activated');
+  };
+
+  const handleDelete = async (message: Message) => {
+    if (!userProfile || message.senderId !== userProfile.uid) {
+      toast.error('You can only delete your own messages');
+      return;
+    }
+
+    try {
+      const messageRef = doc(db, 'chats', currentChatId!, 'messages', message.id);
+      await deleteDoc(messageRef);
+      toast.success('Message deleted');
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      toast.error('Failed to delete message');
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-chat-bg h-full max-h-screen overflow-hidden">
       {/* Chat Header */}
@@ -137,13 +184,24 @@ export default function ChatWindow() {
             key={message.id}
             message={message}
             isOwn={message.senderId === userProfile?.uid}
+            onReply={handleReply}
+            onForward={handleForward}
+            onCopy={handleCopy}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         ))}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Message Composer */}
-      <MessageComposer chatId={currentChatId} />
+      <MessageComposer 
+        chatId={currentChatId} 
+        replyToMessage={replyToMessage}
+        onCancelReply={() => setReplyToMessage(null)}
+        editingMessage={editingMessage}
+        onCancelEdit={() => setEditingMessage(null)}
+      />
 
       {/* User Profile View Dialog */}
       <UserProfileView 

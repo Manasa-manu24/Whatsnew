@@ -2,16 +2,52 @@ import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Check, CheckCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ImageLightbox from './ImageLightbox';
+import MessageActions from './MessageActions';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface MessageBubbleProps {
   message: Message;
   isOwn: boolean;
+  onReply?: (message: Message) => void;
+  onForward?: (message: Message) => void;
+  onCopy?: (message: Message) => void;
+  onEdit?: (message: Message) => void;
+  onDelete?: (message: Message) => void;
 }
 
-export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+export default function MessageBubble({ 
+  message, 
+  isOwn,
+  onReply = () => {},
+  onForward = () => {},
+  onCopy = () => {},
+  onEdit = () => {},
+  onDelete = () => {},
+}: MessageBubbleProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [repliedMessage, setRepliedMessage] = useState<Message | null>(null);
+
+  // Fetch replied message if exists
+  useEffect(() => {
+    const fetchRepliedMessage = async () => {
+      if (message.replyToMessageId && message.chatId) {
+        try {
+          const messageRef = doc(db, 'chats', message.chatId, 'messages', message.replyToMessageId);
+          const messageDoc = await getDoc(messageRef);
+          if (messageDoc.exists()) {
+            setRepliedMessage({ id: messageDoc.id, ...messageDoc.data() } as Message);
+          }
+        } catch (error) {
+          console.error('Error fetching replied message:', error);
+        }
+      }
+    };
+
+    fetchRepliedMessage();
+  }, [message.replyToMessageId, message.chatId]);
 
   const getTime = () => {
     try {
@@ -30,14 +66,35 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
 
   return (
     <div className={cn('flex', isOwn ? 'justify-end' : 'justify-start')}>
-      <div
-        className={cn(
-          'max-w-[85%] sm:max-w-[75%] md:max-w-[70%] rounded-lg px-3 py-2 shadow-message',
-          isOwn
-            ? 'bg-chat-outgoing'
-            : 'bg-chat-incoming'
-        )}
+      <MessageActions
+        message={message}
+        isOwn={isOwn}
+        onReply={onReply}
+        onForward={onForward}
+        onCopy={onCopy}
+        onEdit={onEdit}
+        onDelete={onDelete}
       >
+        <div
+          className={cn(
+            'max-w-[85%] sm:max-w-[75%] md:max-w-[70%] rounded-lg px-3 py-2 shadow-message cursor-pointer hover:shadow-lg transition-shadow',
+            isOwn
+              ? 'bg-chat-outgoing'
+              : 'bg-chat-incoming'
+          )}
+        >
+        {/* Replied Message Context */}
+        {repliedMessage && (
+          <div className="mb-2 p-2 bg-muted/50 rounded border-l-4 border-primary">
+            <p className="text-xs font-semibold text-primary mb-1">
+              Replied to
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {repliedMessage.content || '📷 Photo'}
+            </p>
+          </div>
+        )}
+
         {message.attachments && message.attachments.length > 0 && (
           <div className="mb-2">
             {message.attachments.map((attachment) => (
@@ -47,7 +104,10 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
                     src={attachment.url}
                     alt="attachment"
                     className="max-w-full h-auto rounded max-h-[300px] object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setSelectedImage(attachment.url)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(attachment.url);
+                    }}
                   />
                 )}
               </div>
@@ -62,6 +122,11 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
         )}
         
         <div className="flex items-center justify-end gap-1 mt-1">
+          {message.editedAt && (
+            <span className="text-[10px] text-muted-foreground italic mr-1">
+              edited
+            </span>
+          )}
           <span className="text-[10px] md:text-xs text-chat-timestamp">
             {getTime()}
           </span>
@@ -83,7 +148,8 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             </span>
           )}
         </div>
-      </div>
+        </div>
+      </MessageActions>
 
       <ImageLightbox 
         imageUrl={selectedImage} 
