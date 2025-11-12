@@ -17,8 +17,12 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
     }
   };
 
+  // Check if message has been read by the recipient (not just sender)
   const hasBeenRead = message.readBy && Object.keys(message.readBy).length > 1;
-  const hasBeenDelivered = message.deliveredTo && message.deliveredTo.length > 0;
+  
+  // In WhatsApp: Message shows double ticks immediately after sending (sent to server)
+  // Message is considered "delivered" as soon as it exists in the database
+  const hasBeenSent = !!message.createdAt;
 
   return (
     <div className={cn('flex', isOwn ? 'justify-end' : 'justify-start')}>
@@ -62,10 +66,13 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
               hasBeenRead ? "text-blue-500" : "text-chat-timestamp"
             )}>
               {hasBeenRead ? (
+                // Blue double ticks - message has been read
                 <CheckCheck className="h-3 w-3" />
-              ) : hasBeenDelivered ? (
+              ) : hasBeenSent ? (
+                // Gray double ticks - message has been sent/delivered
                 <CheckCheck className="h-3 w-3" />
               ) : (
+                // Single tick - message pending (rarely shown)
                 <Check className="h-3 w-3" />
               )}
             </span>
