@@ -5,8 +5,10 @@ import { Check, CheckCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import ImageLightbox from './ImageLightbox';
 import MessageActions from './MessageActions';
+import MediaActions from './MediaActions';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { toast } from 'sonner';
 
 interface MessageBubbleProps {
   message: Message;
@@ -64,6 +66,37 @@ export default function MessageBubble({
   // Message is considered "delivered" as soon as it exists in the database
   const hasBeenSent = !!message.createdAt;
 
+  const handleMediaView = (url: string) => {
+    setSelectedImage(url);
+  };
+
+  const handleMediaDownload = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `image-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      toast.success('Image downloaded');
+    } catch (error) {
+      console.error('Error downloading:', error);
+      toast.error('Failed to download image');
+    }
+  };
+
+  const handleMediaForward = () => {
+    toast.info('Forward feature coming soon');
+  };
+
+  const handleMediaDelete = () => {
+    onDelete(message);
+  };
+
   return (
     <div className={cn('flex', isOwn ? 'justify-end' : 'justify-start')}>
       <MessageActions
@@ -98,17 +131,24 @@ export default function MessageBubble({
         {message.attachments && message.attachments.length > 0 && (
           <div className="mb-2">
             {message.attachments.map((attachment) => (
-              <div key={attachment.id} className="rounded overflow-hidden">
+              <div key={attachment.id} className="rounded overflow-hidden relative group">
                 {attachment.type === 'image' && (
-                  <img
-                    src={attachment.url}
-                    alt="attachment"
-                    className="max-w-full h-auto rounded max-h-[300px] object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedImage(attachment.url);
-                    }}
-                  />
+                  <>
+                    <MediaActions
+                      attachment={attachment}
+                      message={message}
+                      isOwn={isOwn}
+                      onView={() => handleMediaView(attachment.url)}
+                      onDownload={() => handleMediaDownload(attachment.url)}
+                      onForward={handleMediaForward}
+                      onDelete={handleMediaDelete}
+                    />
+                    <img
+                      src={attachment.url}
+                      alt="attachment"
+                      className="max-w-full h-auto rounded max-h-[300px] object-contain"
+                    />
+                  </>
                 )}
               </div>
             ))}
