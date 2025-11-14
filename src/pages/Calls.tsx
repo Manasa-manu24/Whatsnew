@@ -60,12 +60,12 @@ export default function Calls() {
   return (
     <div className="overflow-y-auto h-full">
       {mockCalls.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-8 text-center h-full">
-          <div className="bg-primary/10 rounded-full p-6 mb-4">
-            <Phone className="h-12 w-12 text-primary" />
+        <div className="flex flex-col items-center justify-center p-6 sm:p-8 text-center h-full">
+          <div className="bg-primary/10 rounded-full p-4 sm:p-6 mb-3 sm:mb-4">
+            <Phone className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">No calls yet</h3>
-          <p className="text-muted-foreground text-sm">
+          <h3 className="text-base sm:text-lg font-semibold mb-1.5 sm:mb-2">No calls yet</h3>
+          <p className="text-muted-foreground text-xs sm:text-sm">
             Start a voice or video call with your contacts
           </p>
         </div>
@@ -74,18 +74,18 @@ export default function Calls() {
           {mockCalls.map((call) => (
             <div
               key={call.id}
-              className="flex items-center gap-3 p-4 hover:bg-secondary/50 transition-colors border-b border-border"
+              className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 md:p-4 hover:bg-secondary/50 transition-colors border-b border-border"
             >
-              <Avatar className="h-12 w-12">
+              <Avatar className="h-10 w-10 sm:h-11 sm:w-11 md:h-12 md:w-12 flex-shrink-0">
                 <AvatarImage src={call.contactAvatar} />
-                <AvatarFallback className="bg-primary text-primary-foreground">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
                   {call.contactName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground">{call.contactName}</h3>
-                <div className="flex items-center gap-2 text-sm">
+                <h3 className="font-semibold text-foreground text-xs sm:text-sm md:text-base truncate">{call.contactName}</h3>
+                <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                   {getCallIcon(call)}
                   <span className={call.type === 'missed' ? 'text-destructive' : 'text-muted-foreground'}>
                     {formatDistanceToNow(call.timestamp, { addSuffix: true })}
@@ -102,10 +102,10 @@ export default function Calls() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-primary hover:text-primary-dark"
+                className="text-primary hover:text-primary-dark h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 flex-shrink-0"
                 aria-label={call.isVideo ? 'Video call' : 'Voice call'}
               >
-                {call.isVideo ? <Video className="h-5 w-5" /> : <Phone className="h-5 w-5" />}
+                {call.isVideo ? <Video className="h-4 w-4 sm:h-5 sm:w-5" /> : <Phone className="h-4 w-4 sm:h-5 sm:w-5" />}
               </Button>
             </div>
           ))}

@@ -24,8 +24,8 @@ export default function WhatsnewHeader({
   onSearch,
 }: WhatsnewHeaderProps) {
   return (
-    <header className="bg-card border-b border-border h-14 min-h-[3.5rem] flex items-center px-4 gap-2 md:gap-4 flex-shrink-0">
-      <h1 className="text-base md:text-lg font-semibold text-foreground whitespace-nowrap">WhatsNew</h1>
+    <header className="bg-card border-b border-border h-12 sm:h-14 flex items-center px-2 sm:px-3 md:px-4 gap-1.5 sm:gap-2 md:gap-4 flex-shrink-0">
+      <h1 className="text-sm sm:text-base md:text-lg font-semibold text-foreground whitespace-nowrap">WhatsNew</h1>
       
       {showSearch && (
         <div className="flex-1 max-w-md mx-auto hidden md:block">
@@ -41,18 +41,18 @@ export default function WhatsnewHeader({
         </div>
       )}
 
-      <div className="ml-auto flex items-center gap-1 md:gap-2">
+      <div className="ml-auto flex items-center gap-0.5 sm:gap-1 md:gap-2">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+                className="h-8 w-8 sm:h-9 sm:w-9"
                 onClick={onOpenScan}
                 aria-label="Scan QR code"
               >
-                <QrCode className="h-5 w-5" />
+                <QrCode className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -65,11 +65,11 @@ export default function WhatsnewHeader({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+                className="h-8 w-8 sm:h-9 sm:w-9"
                 onClick={onOpenCamera}
                 aria-label="Camera"
               >
-                <Camera className="h-5 w-5" />
+                <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -82,11 +82,11 @@ export default function WhatsnewHeader({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+                className="h-8 w-8 sm:h-9 sm:w-9"
                 onClick={onOpenSettings}
                 aria-label="Settings"
               >
-                <Settings className="h-5 w-5" />
+                <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
