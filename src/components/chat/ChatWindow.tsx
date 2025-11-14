@@ -6,23 +6,34 @@ import { useMessageReceipts } from '@/hooks/useMessageReceipts';
 import MessageBubble from './MessageBubble';
 import MessageComposer from './MessageComposer';
 import UserProfileView from './UserProfileView';
+import MediaGallery from './MediaGallery';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Phone, Video, MessageCircle, ArrowLeft } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical, Phone, Video, MessageCircle, ArrowLeft, BellOff, User, Ban, Trash2, Image, Users } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getUserProfile } from '@/lib/chatUtils';
-import { User, Message } from '@/lib/types';
+import { User as UserType, Message } from '@/lib/types';
 import { doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function ChatWindow() {
   const { currentChatId, chats, messages, setCurrentChatId } = useChatStore();
   const { userProfile } = useAuthStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [otherUser, setOtherUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+  const [otherUser, setOtherUser] = useState<UserType | null>(null);
   const [showProfileView, setShowProfileView] = useState(false);
+  const [showMediaGallery, setShowMediaGallery] = useState(false);
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   
@@ -129,6 +140,64 @@ export default function ChatWindow() {
     }
   };
 
+  const handleMuteNotifications = async () => {
+    try {
+      const chatRef = doc(db, 'chats', currentChatId!);
+      await updateDoc(chatRef, {
+        muted: true,
+        mutedAt: serverTimestamp()
+      });
+      toast.success('Notifications muted');
+    } catch (error) {
+      console.error('Error muting notifications:', error);
+      toast.error('Failed to mute notifications');
+    }
+  };
+
+  const handleViewProfile = () => {
+    if (!currentChat.isGroup && otherUser) {
+      setShowProfileView(true);
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (currentChat.isGroup) {
+      toast.error('Cannot block group chats');
+      return;
+    }
+
+    try {
+      // TODO: Implement block functionality in your backend
+      toast.info('Block feature coming soon');
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      toast.error('Failed to block user');
+    }
+  };
+
+  const handleDeleteChat = async () => {
+    if (!currentChatId) return;
+
+    try {
+      const chatRef = doc(db, 'chats', currentChatId);
+      await deleteDoc(chatRef);
+      setCurrentChatId(null);
+      toast.success('Chat deleted');
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      toast.error('Failed to delete chat');
+    }
+  };
+
+  const handleViewMedia = () => {
+    setShowMediaGallery(true);
+  };
+
+  const handleNewGroup = () => {
+    toast.info('New group feature coming soon');
+    // TODO: Navigate to group creation page or open dialog
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-chat-bg h-full max-h-screen overflow-hidden">
       {/* Chat Header */}
@@ -171,9 +240,55 @@ export default function ChatWindow() {
           <Button variant="ghost" size="icon" className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]">
             <Phone className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
+          
+          {/* 3-Dot Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={handleMuteNotifications}>
+                <BellOff className="mr-2 h-4 w-4" />
+                <span>Mute Notifications</span>
+              </DropdownMenuItem>
+              
+              {!currentChat.isGroup && (
+                <DropdownMenuItem onClick={handleViewProfile}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+              )}
+              
+              <DropdownMenuItem onClick={handleViewMedia}>
+                <Image className="mr-2 h-4 w-4" />
+                <span>Media</span>
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem onClick={handleNewGroup}>
+                <Users className="mr-2 h-4 w-4" />
+                <span>New Group</span>
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              {!currentChat.isGroup && (
+                <DropdownMenuItem onClick={handleBlockUser}>
+                  <Ban className="mr-2 h-4 w-4" />
+                  <span>Block</span>
+                </DropdownMenuItem>
+              )}
+              
+              <DropdownMenuItem 
+                onClick={handleDeleteChat}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                <span>Delete Chat</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -208,6 +323,13 @@ export default function ChatWindow() {
         open={showProfileView} 
         onOpenChange={setShowProfileView}
         user={otherUser}
+      />
+
+      {/* Media Gallery Dialog */}
+      <MediaGallery
+        open={showMediaGallery}
+        onOpenChange={setShowMediaGallery}
+        messages={currentMessages}
       />
     </div>
   );
