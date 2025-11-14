@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Image as ImageIcon, Smile, Paperclip, X } from 'lucide-react';
+import { Send, Image as ImageIcon, Smile, Paperclip, X, Video as VideoIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Message } from '@/lib/types';
 
@@ -27,6 +27,7 @@ export default function MessageComposer({
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const { userProfile } = useAuthStore();
   const { toast } = useToast();
 
@@ -152,6 +153,69 @@ export default function MessageComposer({
     }
   };
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !userProfile) return;
+
+    // Validate file size (max 50MB for video)
+    if (file.size > 50 * 1024 * 1024) {
+      toast({
+        title: 'Video too large',
+        description: 'Please select a video under 50MB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const result = await uploadToCloudinary(file);
+
+      const messagesRef = collection(db, 'chats', chatId, 'messages');
+      await addDoc(messagesRef, {
+        chatId,
+        senderId: userProfile.uid,
+        attachments: [{
+          id: result.public_id,
+          url: result.secure_url,
+          type: 'video',
+          size: result.bytes,
+        }],
+        createdAt: serverTimestamp(),
+        deliveredTo: [],
+        readBy: { [userProfile.uid]: serverTimestamp() },
+      });
+
+      // Update chat's last message
+      const chatRef = doc(db, 'chats', chatId);
+      await updateDoc(chatRef, {
+        lastMessagePreview: {
+          text: '🎥 Video',
+          senderId: userProfile.uid,
+          createdAt: serverTimestamp(),
+          attachmentType: 'video',
+        },
+        updatedAt: serverTimestamp(),
+      });
+
+      toast({
+        title: 'Video sent!',
+      });
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      toast({
+        title: 'Failed to upload video',
+        description: 'Please try again',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+      if (videoInputRef.current) {
+        videoInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -194,6 +258,7 @@ export default function MessageComposer({
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
             className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+            title="Send image"
           >
             <ImageIcon className="h-5 w-5" />
           </Button>
@@ -204,6 +269,26 @@ export default function MessageComposer({
             className="hidden"
             onChange={handleImageUpload}
           />
+          
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => videoInputRef.current?.click()}
+            disabled={uploading}
+            className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+            title="Send video"
+          >
+            <VideoIcon className="h-5 w-5" />
+          </Button>
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={handleVideoUpload}
+          />
+          
           <Button 
             type="button" 
             variant="ghost" 

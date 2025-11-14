@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Download, Forward, Trash2, Eye } from 'lucide-react';
+import { MoreVertical, Download, Forward, Trash2, Eye, Reply } from 'lucide-react';
 
 interface MediaActionsProps {
   attachment: Attachment;
@@ -15,6 +15,7 @@ interface MediaActionsProps {
   isOwn: boolean;
   onView: () => void;
   onDownload: () => void;
+  onReply: () => void;
   onForward: () => void;
   onDelete: () => void;
 }
@@ -25,6 +26,7 @@ export default function MediaActions({
   isOwn,
   onView,
   onDownload,
+  onReply,
   onForward,
   onDelete,
 }: MediaActionsProps) {
@@ -41,6 +43,14 @@ export default function MediaActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48" onClick={(e) => e.stopPropagation()}>
+        <DropdownMenuItem onClick={(e) => {
+          e.stopPropagation();
+          onReply();
+        }}>
+          <Reply className="mr-2 h-4 w-4" />
+          <span>Reply</span>
+        </DropdownMenuItem>
+        
         <DropdownMenuItem onClick={(e) => {
           e.stopPropagation();
           onView();

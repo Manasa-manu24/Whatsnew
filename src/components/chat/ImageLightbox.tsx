@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Download, ZoomIn, ZoomOut, RotateCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface ImageLightboxProps {
   imageUrl: string | null;
@@ -77,7 +78,6 @@ export default function ImageLightbox({ imageUrl, onClose }: ImageLightboxProps)
   };
 
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
     if (e.deltaY < 0) {
       handleZoomIn();
     } else {
@@ -92,7 +92,15 @@ export default function ImageLightbox({ imageUrl, onClose }: ImageLightboxProps)
       <DialogContent 
         className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-none"
         onPointerDownOutside={(e) => e.preventDefault()}
+        aria-describedby="image-lightbox-description"
       >
+        <VisuallyHidden>
+          <DialogTitle>Image Viewer</DialogTitle>
+          <DialogDescription id="image-lightbox-description">
+            Full-screen image viewer with zoom, rotation, and download controls. 
+            Use mouse wheel or buttons to zoom. Click and drag to pan when zoomed.
+          </DialogDescription>
+        </VisuallyHidden>
         {/* Header with controls */}
         <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
           <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -122,6 +123,9 @@ export default function SettingsDialog({ open, onOpenChange }: SettingsDialogPro
       <DialogContent className="sm:max-w-[500px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle>Settings</DialogTitle>
+          <DialogDescription>
+            Manage your app preferences and account settings
+          </DialogDescription>
         </DialogHeader>
 
         <div className="overflow-y-auto max-h-[70vh]">

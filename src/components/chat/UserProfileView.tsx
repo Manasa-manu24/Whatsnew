@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { User } from '@/lib/types';
 import { Mail, Phone, Info, MessageCircle, Video, Bell } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface UserProfileViewProps {
   open: boolean;
@@ -22,6 +24,13 @@ export default function UserProfileView({ open, onOpenChange, user }: UserProfil
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] p-0">
+        <VisuallyHidden>
+          <DialogTitle>User Profile</DialogTitle>
+          <DialogDescription>
+            View user profile information, contact details, and action buttons
+          </DialogDescription>
+        </VisuallyHidden>
+        
         {/* Header with Avatar */}
         <div className="bg-primary/5 pt-8 pb-6 px-6 flex flex-col items-center">
           <Avatar className="h-32 w-32 mb-4 ring-4 ring-background">
