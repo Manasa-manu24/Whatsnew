@@ -217,38 +217,38 @@ export default function UnifiedChatList() {
             onClick={() => handleEntryClick(entry)}
             disabled={isCreating}
             className={cn(
-              'w-full flex items-center gap-2 md:gap-3 p-3 md:p-4 hover:bg-secondary/50 transition-colors border-b border-border active:bg-secondary/70 disabled:opacity-50 disabled:cursor-not-allowed',
+              'w-full flex items-center gap-1.5 sm:gap-2 md:gap-3 p-2 sm:p-3 md:p-4 hover:bg-secondary/50 transition-colors border-b border-border active:bg-secondary/70 disabled:opacity-50 disabled:cursor-not-allowed',
               isActive && 'bg-secondary'
             )}
           >
-            <Avatar className="h-11 w-11 md:h-12 md:w-12 flex-shrink-0 relative">
+            <Avatar className="h-10 w-10 sm:h-11 sm:w-11 md:h-12 md:w-12 flex-shrink-0 relative">
               <AvatarImage src={entry.avatarUrl} />
-              <AvatarFallback className="bg-primary text-primary-foreground">
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
                 {entry.name.charAt(0).toUpperCase()}
               </AvatarFallback>
               {entry.isOnline && (
-                <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-background rounded-full" />
+                <div className="absolute bottom-0 right-0 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-green-500 border-2 border-background rounded-full" />
               )}
             </Avatar>
             
             <div className="flex-1 min-w-0 text-left">
-              <div className="flex items-center justify-between mb-0.5 md:mb-1">
-                <h3 className="font-semibold text-sm md:text-base text-foreground truncate">
+              <div className="flex items-center justify-between mb-0.5">
+                <h3 className="font-semibold text-xs sm:text-sm md:text-base text-foreground truncate">
                   {entry.name}
                 </h3>
                 {entry.type === 'chat' && entry.lastMessageTime && (
-                  <span className="text-[10px] md:text-xs text-chat-timestamp flex-shrink-0 ml-2">
+                  <span className="text-[9px] sm:text-[10px] md:text-xs text-chat-timestamp flex-shrink-0 ml-1.5 sm:ml-2">
                     {getLastMessageTime(entry)}
                   </span>
                 )}
               </div>
-              <p className="text-xs md:text-sm text-muted-foreground truncate">
+              <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground truncate">
                 {entry.lastMessage}
               </p>
             </div>
             
             {isCreating && (
-              <Loader2 className="h-5 w-5 animate-spin text-primary flex-shrink-0" />
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-primary flex-shrink-0" />
             )}
           </button>
         );

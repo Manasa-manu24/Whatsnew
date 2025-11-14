@@ -201,24 +201,24 @@ export default function ChatWindow() {
   return (
     <div className="flex-1 flex flex-col bg-chat-bg h-full max-h-screen overflow-hidden">
       {/* Chat Header */}
-      <div className="bg-background border-b border-border px-3 md:px-4 py-3 flex items-center gap-2 md:gap-3 flex-shrink-0">
+      <div className="bg-background border-b border-border px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
         {isMobile && (
           <Button 
             variant="ghost" 
             size="icon"
             onClick={() => setCurrentChatId(null)}
-            className="mr-1 min-h-[2.5rem] min-w-[2.5rem]"
+            className="mr-0.5 sm:mr-1 h-9 w-9 sm:h-10 sm:w-10"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         )}
         
         <Avatar 
-          className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+          className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => !currentChat.isGroup && setShowProfileView(true)}
         >
           <AvatarImage src={getChatAvatar()} />
-          <AvatarFallback className="bg-primary text-primary-foreground">
+          <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
             {getChatName().charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -227,18 +227,18 @@ export default function ChatWindow() {
           className="flex-1 min-w-0 cursor-pointer hover:bg-muted/50 rounded-md p-1 -ml-1 transition-colors"
           onClick={() => !currentChat.isGroup && setShowProfileView(true)}
         >
-          <h2 className="font-semibold text-sm md:text-base text-foreground truncate">{getChatName()}</h2>
-          <p className="text-xs text-muted-foreground truncate">
+          <h2 className="font-semibold text-xs sm:text-sm md:text-base text-foreground truncate">{getChatName()}</h2>
+          <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
             {getChatStatus()}
           </p>
         </div>
         
-        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-          <Button variant="ghost" size="icon" className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]">
-            <Video className="h-5 w-5" />
+        <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2 flex-shrink-0">
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+            <Video className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]">
-            <Phone className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9">
+            <Phone className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
           
           {/* 3-Dot Menu */}
@@ -293,7 +293,7 @@ export default function ChatWindow() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2 overscroll-contain">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 space-y-1.5 sm:space-y-2 overscroll-contain">
         {currentMessages.map((message) => (
           <MessageBubble
             key={message.id}

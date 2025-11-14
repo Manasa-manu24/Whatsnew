@@ -249,18 +249,18 @@ export default function MessageComposer({
         </div>
       )}
       
-      <div className="p-3 md:p-4 flex items-end gap-1 md:gap-2">
-        <div className="flex items-center gap-0.5 md:gap-1">
+      <div className="p-2 sm:p-3 md:p-4 flex items-end gap-1 sm:gap-1.5 md:gap-2">
+        <div className="flex items-center gap-0.5 sm:gap-1">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+            className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-muted"
             title="Send image"
           >
-            <ImageIcon className="h-5 w-5" />
+            <ImageIcon className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
           <input
             ref={fileInputRef}
@@ -276,10 +276,10 @@ export default function MessageComposer({
             size="icon"
             onClick={() => videoInputRef.current?.click()}
             disabled={uploading}
-            className="h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+            className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-muted"
             title="Send video"
           >
-            <VideoIcon className="h-5 w-5" />
+            <VideoIcon className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
           <input
             ref={videoInputRef}
@@ -304,7 +304,7 @@ export default function MessageComposer({
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type a message"
-          className="min-h-[40px] max-h-[120px] resize-none text-sm md:text-base"
+          className="min-h-[36px] sm:min-h-[40px] max-h-[100px] sm:max-h-[120px] resize-none text-sm sm:text-base py-2 px-3 rounded-2xl"
           rows={1}
         />
 
@@ -321,9 +321,9 @@ export default function MessageComposer({
             onClick={handleSendMessage}
             disabled={!message.trim() || uploading}
             size="icon"
-            className="bg-primary hover:bg-primary-dark h-9 w-9 min-h-[2.25rem] min-w-[2.25rem]"
+            className="bg-primary hover:bg-primary/90 h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-md transition-all"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
       </div>

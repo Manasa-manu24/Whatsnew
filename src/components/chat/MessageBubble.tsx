@@ -162,7 +162,7 @@ export default function MessageBubble({
           >
             <div
               className={cn(
-                'rounded-lg px-3 py-2 shadow-message cursor-pointer hover:shadow-lg transition-shadow',
+                'rounded-2xl px-2.5 py-2 sm:px-3 sm:py-2 shadow-message cursor-pointer hover:shadow-lg transition-shadow',
                 isOwn
                   ? 'bg-chat-outgoing'
                   : 'bg-chat-incoming'
