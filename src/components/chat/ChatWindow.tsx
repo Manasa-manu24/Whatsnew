@@ -199,7 +199,7 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-chat-bg h-full overflow-hidden">
+    <div className="flex flex-col bg-chat-bg w-full h-full overflow-hidden">
       {/* Chat Header */}
       <div className="bg-background border-b border-border px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
         {isMobile && (
@@ -293,7 +293,7 @@ export default function ChatWindow() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 space-y-1.5 sm:space-y-2 overscroll-contain">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-3 md:p-4 space-y-1.5 sm:space-y-2 overscroll-contain">
         {currentMessages.map((message) => (
           <MessageBubble
             key={message.id}
