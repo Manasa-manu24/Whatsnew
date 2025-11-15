@@ -199,9 +199,9 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="flex flex-col bg-chat-bg w-full h-full overflow-hidden">
+    <div className="flex flex-col bg-chat-bg w-full h-full">
       {/* Chat Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
+      <div className="bg-background border-b border-border px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 z-10">
         {isMobile && (
           <Button 
             variant="ghost" 

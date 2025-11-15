@@ -224,7 +224,7 @@ export default function MessageComposer({
   };
 
   return (
-    <div className="sticky bottom-0 z-10 bg-background border-t border-border flex-shrink-0">
+    <div className="bg-background border-t border-border flex-shrink-0 z-10">
       {/* Reply/Edit Indicator */}
       {(replyToMessage || editingMessage) && (
         <div className="px-3 md:px-4 pt-3 pb-1">
