@@ -107,7 +107,7 @@ const Index = () => {
 
   return (
     <>
-      <div className="h-screen flex bg-background overflow-hidden">
+      <div className="h-[100dvh] md:h-screen flex bg-background overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         {isMobile ? (
           // Mobile Layout
           <div className="flex-1 flex flex-col w-full max-w-full">
