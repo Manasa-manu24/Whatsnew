@@ -96,7 +96,7 @@ export default function UnifiedChatList() {
           chatEntries.push({
             id: chat.id,
             type: 'chat',
-            name: otherUser?.name || otherUserId,
+            name: otherUser?.name || 'Loading...',
             avatarUrl: otherUser?.avatarUrl,
             lastMessage: chat.lastMessagePreview?.text || 'No messages yet',
             lastMessageTime: chat.lastMessagePreview?.createdAt,

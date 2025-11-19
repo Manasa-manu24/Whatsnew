@@ -45,7 +45,7 @@ export default function ChatList() {
     if (!otherUserId) return 'Unknown';
     
     const otherUser = userProfiles.get(otherUserId);
-    return otherUser?.name || otherUserId;
+    return otherUser?.name || 'Loading...';
   };
 
   const getChatAvatar = (chat: any) => {
